@@ -1,5 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const fs = require('fs');
+const https = require('https');
 
 // create express app
 const app = express();
@@ -13,12 +15,13 @@ app.use(bodyParser.json())
 const dbConfig = require('./config/development.config.js');
 const mongoose = require('mongoose');
 
+
 mongoose.Promise = global.Promise;
 
 // Connecting to the database
 const  options = {
 useNewUrlParser:  true,
-useUnifiedTopology:  true
+useUnifiedTopology:  true,
 };
 
 // Connect MongoDB Atlas using mongoose connect method
@@ -37,7 +40,10 @@ app.get('/', (req, res) => {
 });
 require('./app/routes/book.routes.js')(app);
 require('./app/routes/user.routes.js')(app);
+// Creating secure server
+const server = https.createServer({key: fs.readFileSync('key.pem'),
+cert: fs.readFileSync('cert.pem')},app);
 // listen for requests
-app.listen(3000, () => {
+server.listen(3000, () => {
    console.log("Server is listening on port 3000");
 });
